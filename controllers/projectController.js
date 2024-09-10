@@ -14,7 +14,8 @@ exports.createProject = async (req, res) => {
 
 exports.getProjects = async (req, res) => {
     try{
-        const projects = await Project.find({ owner: req.userId });
+        // const projects = await Project.find({ owner: req.userId });
+        const projects = await Project.find();
         res.status(200).json(projects);
     }catch (err) {
         res.status(500).json({error: err.message});

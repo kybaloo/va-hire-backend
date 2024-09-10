@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const uniqueValidator = require('mongoose-unique-validator');
+const bcrypt = require('bcrypt');
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -21,9 +22,14 @@ const userSchema = new mongoose.Schema({
     default: 'user'
   },
   profile: {
+    title: String,
     skills: [String],
     experience: String,
     portfolio: String,
+  },
+  receiveEmails: {
+    type: Boolean,
+    default: false
   },
   createdAt: {
     type: Date,
