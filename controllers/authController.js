@@ -56,7 +56,71 @@ exports.login = async (req, res) => {
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
       expiresIn: "1h",
     });
-    res.status(200).json({ token });
+    res.status(200).json({ token, role: user.role });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// Méthode de connexion sociale
+exports.socialRegister = async (req, res) => {
+  try {
+    const { email, name, socialProvider, socialId } = req.body;
+
+    // Check if user already exists
+    let user = await User.findOne({ email });
+
+    if (user) {
+      // Link social account to existing user
+      user.socialProviders.push({ provider: socialProvider, id: socialId });
+      await user.save();
+    } else {
+      // Create new user with social registration
+      user = new User({
+        name,
+        email,
+        socialProviders: [{ provider: socialProvider, id: socialId }],
+        role: 'user', // Default role for social registrations
+        isProfileComplete: false,
+      });
+      await user.save();
+    }
+
+    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
+      expiresIn: "1h",
+    });
+
+    res.status(200).json({ 
+      token, 
+      role: user.role, 
+      isProfileComplete: user.isProfileComplete 
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// Méthode de complétion du profil
+exports.completeProfile = async (req, res) => {
+  try {
+    const { title, receiveEmails } = req.body;
+    const userId = req.user.id; // Assuming you have authentication middleware
+
+    const user = await User.findByIdAndUpdate(
+      userId,
+      { 
+        'profile.title': title, 
+        receiveEmails, 
+        isProfileComplete: true 
+      },
+      { new: true }
+    );
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    res.status(200).json({ message: "Profile completed successfully" });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
