@@ -29,7 +29,6 @@ const checkJwt = jwt({
 app.get('/', (req, res) => {
     res.send('Va-Hire Backend is running');
   });
-  
 
 // Routes
 const authRoutes = require('./routes/auth');
