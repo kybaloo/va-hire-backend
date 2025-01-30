@@ -3,23 +3,27 @@ const uniqueValidator = require('mongoose-unique-validator');
 const bcrypt = require('bcrypt');
 
 const userSchema = new mongoose.Schema({
-  name: {
+  firstname: {
+    type: String,
+    required: true,
+  },
+  lastname: {
     type: String,
     required: true
   },
   email: {
     type: String,
     required: true,
-    unique: true
+    unique: true,
   },
   password: {
     type: String,
-    required: true
+    required: true,
   },
   role: {
     type: String,
-    enum: ['user', 'admin', 'professional', 'recruiter'	],
-    default: 'user'
+    enum: ["user", "admin", "professional", "recruiter"],
+    default: "user",
   },
   profile: {
     title: String,
@@ -29,20 +33,22 @@ const userSchema = new mongoose.Schema({
   },
   receiveEmails: {
     type: Boolean,
-    default: false
+    default: false,
   },
   createdAt: {
     type: Date,
-    default: Date.now
+    default: Date.now,
   },
-  socialProviders: [{
-    provider: String,
-    id: String
-  }],
+  socialProviders: [
+    {
+      provider: String,
+      id: String,
+    },
+  ],
   isProfileComplete: {
     type: Boolean,
-    default: false
-  }
+    default: false,
+  },
 });
 
 userSchema.pre('save', async function (next) {

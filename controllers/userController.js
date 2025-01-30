@@ -40,8 +40,8 @@ exports.getUserProfile = async (req, res) => {
   // Create a new user
 exports.createUser = async (req, res) => {
   try {
-    const { name, email, password, role } = req.body;
-    const newUser = new User({ name, email, password, role });
+    const { firstname, lastname, email, password, role } = req.body;
+    const newUser = new User({ firstname, lastname, email, password, role });
     await newUser.save();
     res.status(201).json(newUser);
   } catch (error) {

@@ -7,7 +7,8 @@ exports.register = async (req, res) => {
   try {
     const {
       email,
-      name,
+      firstname,
+      lastname,
       title,
       password,
       passwordConfirm,
@@ -22,7 +23,8 @@ exports.register = async (req, res) => {
 
     // Création d'un nouvel utilisateur
     const user = new User({
-      name,
+      firstname,
+      lastname,
       email,
       password,
       role,
@@ -65,7 +67,7 @@ exports.login = async (req, res) => {
 // Méthode de connexion sociale
 exports.socialRegister = async (req, res) => {
   try {
-    const { email, name, socialProvider, socialId } = req.body;
+    const { email, firstname, lastname, socialProvider, socialId } = req.body;
 
     // Check if user already exists
     let user = await User.findOne({ email });
