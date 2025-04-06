@@ -18,7 +18,15 @@ const userSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    required: true,
+    required: function() {
+      // Password only required if not using social login
+      return this.socialProviders.length === 0;
+    },
+  },
+  auth0Id: {
+    type: String,
+    sparse: true,
+    unique: true
   },
   role: {
     type: String,
@@ -30,6 +38,16 @@ const userSchema = new mongoose.Schema({
     skills: [String],
     experience: String,
     portfolio: String,
+    bio: String,
+    location: String
+  },
+  profileImage: {
+    type: String,
+    default: null
+  },
+  resume: {
+    type: String,
+    default: null
   },
   receiveEmails: {
     type: Boolean,
@@ -41,18 +59,26 @@ const userSchema = new mongoose.Schema({
   },
   socialProviders: [
     {
-      provider: String,
+      provider: {
+        type: String,
+        enum: ["google", "linkedin", "github", "facebook"]
+      },
       id: String,
+      profile: Object // Store additional profile data from social provider
     },
   ],
   isProfileComplete: {
     type: Boolean,
     default: false,
   },
+  lastLogin: {
+    type: Date,
+    default: Date.now
+  }
 });
 
 userSchema.pre('save', async function (next) {
-  if (!this.isModified('password')) return next();
+  if (!this.isModified('password') || !this.password) return next();
   try {
     const salt = await bcrypt.genSalt(10);
     this.password = await bcrypt.hash(this.password, salt);

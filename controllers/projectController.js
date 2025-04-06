@@ -2,12 +2,26 @@ const Project = require('../models/Project')
 
 exports.createProject = async (req, res) => {
     try {
-        const {title, description} = req.body;
-        const project = new Project({ title, description, owner: req.userId });
+        const {title, description, budget, category, skills, deadline} = req.body;
+        
+        // Use Auth0 ID from JWT middleware
+        const userId = req.auth.sub;
+        
+        const project = new Project({ 
+            title, 
+            description, 
+            budget,
+            category,
+            skillsRequired: skills,
+            deadline,
+            owner: userId 
+        });
+        
         await project.save();
         res.status(201).json(project);
     }
     catch(err) {
+        console.error("Error creating project:", err);
         res.status(500).json({error: err.message})
     }
 };
@@ -24,7 +38,7 @@ exports.getProjects = async (req, res) => {
 
 exports.getOneProject = (req, res) => {
     Project.findOne({
-        _id: req.params.id
+        _id: req.params.projectId
     }).then(
         (project) => {
           res.status(200).json(project);
@@ -42,7 +56,7 @@ exports.updateProject = async (req, res) => {
     try {
         const { title, description, assignedTo, status } = req.body;
         const project = await Project.findByIdAndUpdate(
-            req.params.id,
+            req.params.projectId,
             { title, description, assignedTo, status },
             { new: true }
         );
@@ -54,9 +68,12 @@ exports.updateProject = async (req, res) => {
 
 exports.deleteProject = async (req, res) => {
     try {
-        await Project.findByIdAndDelete(req.params.id);
+        await Project.findByIdAndDelete(req.params.projectId);
         res.status(204).send();
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
 };
+
+// Alias for getOneProject to match route naming
+exports.getProject = exports.getOneProject;

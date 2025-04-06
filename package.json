@@ -4,6 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -11,16 +13,27 @@
   "license": "ISC",
   "dependencies": {
     "bcrypt": "^5.1.1",
+    "cloudinary": "^1.41.3",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
+    "es-abstract": "^1.23.9",
     "express": "^4.19.2",
     "express-jwt": "^8.4.1",
     "express-openid-connect": "^2.17.1",
+    "express-rate-limit": "^7.5.0",
+    "express-validator": "^7.2.1",
     "jsonwebtoken": "^9.0.2",
     "jwks-rsa": "^3.1.0",
     "mongoose": "^8.5.1",
     "mongoose-unique-validator": "^5.0.1",
+    "morgan": "^1.10.0",
+    "multer": "^1.4.5-lts.2",
+    "multer-storage-cloudinary": "^4.0.0",
     "nodemon": "^3.1.9",
-    "socket.io": "^4.7.5"
+    "redoc-express": "^2.1.0",
+    "socket.io": "^4.7.5",
+    "stripe": "^18.0.0",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1"
   }
 }

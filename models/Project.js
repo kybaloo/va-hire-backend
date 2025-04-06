@@ -1,5 +1,24 @@
 const mongoose = require("mongoose");
 
+const AttachmentSchema = new mongoose.Schema({
+  url: {
+    type: String,
+    required: true
+  },
+  filename: {
+    type: String,
+    required: true
+  },
+  mimetype: {
+    type: String,
+    required: true
+  },
+  uploadedAt: {
+    type: Date,
+    default: Date.now
+  }
+});
+
 const ProjectSchema = new mongoose.Schema({
   title: { 
     type: String,
@@ -8,6 +27,14 @@ const ProjectSchema = new mongoose.Schema({
   description: {
     type: String,
     required: true
+  },
+  budget: {
+    type: Number,
+    required: true
+  },
+  skillsRequired: {
+    type: [String],
+    default: []
   },
   owner: { 
     type: mongoose.Schema.Types.ObjectId,
@@ -20,8 +47,12 @@ const ProjectSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ["en cours", "terminé"],
+    enum: ["en cours", "terminé", "payé"],
     default: "en cours"
+  },
+  attachments: {
+    type: [AttachmentSchema],
+    default: []
   },
   createdAt: {
     type: Date,
