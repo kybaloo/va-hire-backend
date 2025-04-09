@@ -19,6 +19,7 @@ const router = express.Router();
  *             required:
  *               - email
  *               - password
+ *               - passwordConfirm
  *               - firstname
  *               - lastname
  *             properties:
@@ -30,12 +31,26 @@ const router = express.Router();
  *                 type: string
  *                 format: password
  *                 description: User's password (min 6 characters)
+ *               passwordConfirm:
+ *                 type: string
+ *                 format: password
+ *                 description: Confirmation of the password (must match password)
  *               firstname:
  *                 type: string
  *                 description: User's first name
  *               lastname:
  *                 type: string
  *                 description: User's last name
+ *               role:
+ *                 type: string
+ *                 enum: [user, professional, recruiter]
+ *                 description: User's role (optional, defaults to user)
+ *               title:
+ *                 type: string
+ *                 description: User's professional title (optional)
+ *               receiveEmails:
+ *                 type: boolean
+ *                 description: Whether the user wants to receive emails (optional)
  *     responses:
  *       201:
  *         description: User successfully registered
