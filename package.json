@@ -1,12 +1,13 @@
 {
   "name": "va-hire-backend",
-  "version": "1.0.0",
-  "description": "",
+  "version": "1.0.2",
+  "description": "Backend for VaHire platform",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest",
+    "update-version": "node scripts/update-version.js"
   },
   "keywords": [],
   "author": "",
@@ -35,6 +36,6 @@
     "socket.io": "^4.7.5",
     "stripe": "^18.0.0",
     "swagger-jsdoc": "^6.2.8",
-    "swagger-ui-express": "^5.0.1"
+    "swagger-ui-express": "^5.0.0"
   }
 }

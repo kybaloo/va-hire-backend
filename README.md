@@ -14,6 +14,8 @@ Welcome to the **VaHire** backend, the engine behind our platform that connects 
 - **Express Rate Limit**: API rate limiting
 - **Morgan**: Request logging
 - **Multer**: File upload handling
+- **Swagger/OpenAPI**: API documentation
+- **ReDoc**: Interactive API documentation UI
 
 ---
 
@@ -61,10 +63,14 @@ vahire-backend/
 │
 ├── config/           # Configuration files
 │   ├── cloudinary.js
+│   ├── version.js    # Centralized API versioning
+│   ├── swagger.js    # OpenAPI/Swagger specification
 │   └── production.js
 │
 ├── utils/            # Utility functions
 ├── logs/             # Application logs
+├── scripts/          # Utility scripts
+│   └── update-version.js # API version updater script
 ├── app.js            # Express entry point
 ├── server.js         # Server launcher
 └── .env.example      # Sample configuration
@@ -133,6 +139,57 @@ npm run dev
 Backend runs on: `http://localhost:5000`
 
 ---
+
+## 📖 API Documentation
+
+The VaHire API is fully documented using OpenAPI/Swagger. Two interactive documentation UIs are available:
+
+### Swagger UI
+- **URL**: `/api-docs`
+- **Features**:
+  - Interactive API explorer
+  - Try out endpoints directly from the browser
+  - Complete schema reference
+
+### ReDoc
+- **URL**: `/docs`
+- **Features**: 
+  - Clean, user-friendly interface
+  - Version history and release notes
+  - Downloadable OpenAPI specification
+  - Improved navigation
+
+### OpenAPI Specification
+- **URL**: `/swagger.json`
+- Raw OpenAPI/Swagger JSON specification
+- Can be imported into tools like Postman
+
+## 🔢 Versioning System
+
+VaHire uses semantic versioning (X.Y.Z) for the API:
+
+- **X**: Major version (breaking changes)
+- **Y**: Minor version (backward-compatible features)
+- **Z**: Patch version (bug fixes)
+
+### Version Management
+
+All version information is centralized in `config/version.js`. To update the version:
+
+#### Option 1: Using the script
+
+```bash
+npm run update-version 1.0.3 "Fixed a bug in authentication" "Improved validation"
+```
+
+#### Option 2: Manually edit
+
+Modify the `config/version.js` file directly.
+
+### Current Version
+The current version is **v1.0.2**, which includes:
+- Added `passwordConfirm` field to the registration endpoint documentation
+- Fixed missing `Message` schema definition
 
 ## 🔐 Authentication
 
@@ -223,7 +280,7 @@ VaHire supports social login via Auth0, allowing users to sign in with their:
 | GET    | `/api/courses`                     | Get available courses                    | ❌            |
 | POST   | `/api/courses/:id/enroll`          | Enroll in a course                       | ✅            |
 
-See the API documentation for a complete list of endpoints.
+For a complete list of endpoints, refer to the API documentation at `/api-docs` or `/docs`.
 
 ## 🚀 Deployment
 
