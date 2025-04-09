@@ -72,7 +72,7 @@ vahire-backend/
 ├── scripts/          # Utility scripts
 │   └── update-version.js # API version updater script
 ├── app.js            # Express entry point
-├── server.js         # Server launcher
+├── index.js         # Server launcher
 └── .env.example      # Sample configuration
 ```
 
