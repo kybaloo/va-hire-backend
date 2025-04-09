@@ -67,3 +67,4 @@ package-lock.json
 
 # Ignore all files in the logs directory
 logs/*
+.cursor/rules/commits-messages.mdc
