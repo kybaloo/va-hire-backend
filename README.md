@@ -101,35 +101,6 @@ Create a `.env` file based on `.env.example`:
 cp .env.example .env
 ```
 
-#### Required Environment Variables
-
-```env
-# Server Configuration
-PORT=5000
-NODE_ENV=development
-
-# MongoDB Connection
-MONGO_URI=mongodb+srv://<username>:<password>@cluster.mongodb.net/vahire
-
-# Authentication
-JWT_SECRET=your-jwt-secret
-JWT_EXPIRES_IN=90d
-AUTH0_DOMAIN=your-auth0-domain.auth0.com
-AUTH0_AUDIENCE=your-auth0-audience
-
-# Frontend URL for Redirects
-FRONTEND_URL=http://localhost:3000
-
-# Cloudinary Configuration
-CLOUDINARY_CLOUD_NAME=your-cloud-name
-CLOUDINARY_API_KEY=your-api-key
-CLOUDINARY_API_SECRET=your-api-secret
-
-# Stripe Configuration
-STRIPE_SECRET_KEY=your-stripe-secret-key
-STRIPE_WEBHOOK_SECRET=your-stripe-webhook-secret
-```
-
 ### 4. Start the server
 
 ```bash
