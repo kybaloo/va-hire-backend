@@ -1,0 +1,72 @@
+name: Release
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm test --if-present
+
+      - name: Extract version from tag
+        id: get_version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+
+      - name: Generate changelog
+        id: changelog
+        run: |
+          # Extract version from package.json
+          PACKAGE_VERSION=$(node -p "require('./package.json').version")
+
+          # Read version notes from config/version.js if it exists
+          if [ -f "config/version.js" ]; then
+            NOTES=$(node -e "
+              try {
+                const version = require('./config/version.js');
+                if (version.notes && Array.isArray(version.notes)) {
+                  console.log(version.notes.map(note => '- ' + note).join('\n'));
+                } else {
+                  console.log('- Release version ${{ steps.get_version.outputs.VERSION }}');
+                }
+              } catch (e) {
+                console.log('- Release version ${{ steps.get_version.outputs.VERSION }}');
+              }
+            ")
+          else
+            NOTES="- Release version ${{ steps.get_version.outputs.VERSION }}"
+          fi
+
+          # Save to output
+          echo "RELEASE_NOTES<<EOF" >> $GITHUB_OUTPUT
+          echo "## Changes in ${{ steps.get_version.outputs.VERSION }}" >> $GITHUB_OUTPUT
+          echo "" >> $GITHUB_OUTPUT
+          echo "$NOTES" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Create Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.get_version.outputs.VERSION }}
+          release_name: Release ${{ steps.get_version.outputs.VERSION }}
+          body: ${{ steps.changelog.outputs.RELEASE_NOTES }}
+          draft: false
+          prerelease: ${{ contains(steps.get_version.outputs.VERSION, '-') }}
