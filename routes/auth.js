@@ -1,7 +1,14 @@
-const express = require('express');
-const { register, login, socialRegister, completeProfile, handleAuth0Login } = require('../controllers/authController');
-const { checkJwt } = require('../middleware/auth'); // For Auth0 authentication
-const User = require('../models/User');
+const express = require("express");
+const {
+  register,
+  login,
+  socialRegister,
+  completeProfile,
+  handleAuth0Login,
+} = require("../controllers/authController");
+const { checkJwt, handleJwtError } = require("../middleware/auth"); // For Auth0 authentication
+const { debugAuth0, logAuth0Success } = require("../middleware/debugAuth0");
+const User = require("../models/User");
 const router = express.Router();
 
 /**
@@ -70,7 +77,7 @@ const router = express.Router();
  *       409:
  *         description: Email already exists
  */
-router.post('/register', register);
+router.post("/register", register);
 
 /**
  * @swagger
@@ -121,7 +128,7 @@ router.post('/register', register);
  *       401:
  *         description: Invalid credentials
  */
-router.post('/login', login);
+router.post("/login", login);
 
 /**
  * @swagger
@@ -171,7 +178,7 @@ router.post('/login', login);
  *       400:
  *         description: Invalid social login data
  */
-router.post('/social-register', socialRegister);
+router.post("/social-register", socialRegister);
 
 /**
  * @swagger
@@ -215,7 +222,13 @@ router.post('/social-register', socialRegister);
  *       500:
  *         description: Server error
  */
-router.get('/auth0-callback', checkJwt, handleAuth0Login);
+router.get(
+  "/auth0-callback",
+  debugAuth0,
+  checkJwt,
+  logAuth0Success,
+  handleAuth0Login
+);
 
 /**
  * @swagger
@@ -271,7 +284,13 @@ router.get('/auth0-callback', checkJwt, handleAuth0Login);
  *       400:
  *         description: Invalid profile data
  */
-router.post('/complete-profile', checkJwt, completeProfile);
+router.post(
+  "/complete-profile",
+  debugAuth0,
+  checkJwt,
+  logAuth0Success,
+  completeProfile
+);
 
 /**
  * @swagger
@@ -314,15 +333,15 @@ router.post('/complete-profile', checkJwt, completeProfile);
  *       404:
  *         description: User not found
  */
-router.get('/profile', checkJwt, async (req, res) => {
+router.get("/profile", checkJwt, async (req, res) => {
   try {
     const userId = req.auth.sub;
-    const user = await User.findOne({ auth0Id: userId }).select('-password');
-    
+    const user = await User.findOne({ auth0Id: userId }).select("-password");
+
     if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(404).json({ message: "User not found" });
     }
-    
+
     res.status(200).json({
       user: {
         id: user._id,
@@ -332,14 +351,67 @@ router.get('/profile', checkJwt, async (req, res) => {
         role: user.role,
         profileImage: user.profileImage,
         profile: user.profile,
-        socialProviders: user.socialProviders.map(p => p.provider),
-        isProfileComplete: user.isProfileComplete
-      }
+        socialProviders: user.socialProviders.map((p) => p.provider),
+        isProfileComplete: user.isProfileComplete,
+      },
     });
   } catch (error) {
-    console.error('Error fetching user profile:', error);
+    console.error("Error fetching user profile:", error);
     res.status(500).json({ error: error.message });
   }
 });
+
+/**
+ * @swagger
+ * /api/auth/test-auth0:
+ *   get:
+ *     summary: Test Auth0 configuration and token validation
+ *     tags: [Authentication]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Auth0 token is valid
+ *       401:
+ *         description: Invalid or missing token
+ */
+router.get("/test-auth0", debugAuth0, checkJwt, logAuth0Success, (req, res) => {
+  res.status(200).json({
+    message: "Auth0 token is valid",
+    user: {
+      sub: req.auth.sub,
+      email: req.auth.email,
+      name: req.auth.name,
+      aud: req.auth.aud,
+      iss: req.auth.iss,
+      exp: req.auth.exp,
+    },
+  });
+});
+
+/**
+ * @swagger
+ * /api/auth/auth0-config:
+ *   get:
+ *     summary: Get Auth0 configuration metadata (for debugging)
+ *     tags: [Authentication]
+ *     responses:
+ *       200:
+ *         description: Auth0 configuration metadata
+ */
+router.get("/auth0-config", (req, res) => {
+  res.status(200).json({
+    domain: process.env.AUTH0_DOMAIN,
+    audience: process.env.AUTH0_AUDIENCE,
+    clientId: process.env.AUTH0_CLIENT_ID,
+    issuer: `https://${process.env.AUTH0_DOMAIN}/`,
+    jwksUri: `https://${process.env.AUTH0_DOMAIN}/.well-known/jwks.json`,
+    algorithms: ["RS256"],
+    clientSecretConfigured: !!process.env.AUTH0_CLIENT_SECRET,
+  });
+});
+
+// Error handler for JWT middleware
+router.use(handleJwtError);
 
 module.exports = router;
