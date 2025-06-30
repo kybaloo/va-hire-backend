@@ -33,14 +33,7 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
 }));
 
 // ReDoc Documentation
-app.get('/docs', (req, res, next) => {
-  // Formater les notes de version avec les balises HTML
-  const releaseNotesList = VERSION.releaseNotes.map(note => {
-    // Remplacer les marqueurs de code par des balises HTML
-    const formattedNote = note.replace(/`([^`]+)`/g, '<code>$1</code>');
-    return `<li>✅ ${formattedNote}</li>`;
-  }).join('\n            ');
-  
+app.get('/docs', (req, res, next) => {  
   // Construire le HTML complet
   const html = `<!DOCTYPE html>
     <html>
@@ -55,50 +48,8 @@ app.get('/docs', (req, res, next) => {
             padding: 0;
             font-family: 'Roboto', sans-serif;
           }
-          #header {
-            background-color: #1e88e5;
-            color: white;
-            padding: 10px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-          }
-          #header h1 {
-            margin: 0;
-            font-size: 24px;
-          }
-          #download-link {
-            background-color: white;
-            color: #1e88e5;
-            padding: 8px 15px;
-            text-decoration: none;
-            border-radius: 4px;
-            font-weight: bold;
-            display: inline-block;
-            margin-left: 15px;
-          }
-          #download-link:hover {
-            background-color: #f0f0f0;
-          }
           #redoc-container {
             margin: 0;
-          }
-          #release-notes {
-            background-color: #f8f9fa;
-            padding: 15px 20px;
-            margin: 0;
-            border-bottom: 1px solid #e0e0e0;
-          }
-          #release-notes h2 {
-            color: #1e88e5;
-            font-size: 18px;
-            margin-top: 0;
-          }
-          #release-notes ul {
-            margin-bottom: 0;
-          }
-          #release-notes li {
-            margin-bottom: 5px;
           }
           code {
             background-color: #f1f1f1;
@@ -109,16 +60,6 @@ app.get('/docs', (req, res, next) => {
         </style>
       </head>
       <body>
-        <div id="header">
-          <h1>VaHire API Documentation v${VERSION.number}</h1>
-          <a id="download-link" href="/swagger.json" download="swagger.json">Télécharger swagger.json</a>
-        </div>
-        <div id="release-notes">
-          <h2>Notes de version - v${VERSION.number}</h2>
-          <ul>
-            ${releaseNotesList}
-          </ul>
-        </div>
         <div id="redoc-container"></div>
         <script src="https://cdn.jsdelivr.net/npm/redoc/bundles/redoc.standalone.js"></script>
         <script>
@@ -158,8 +99,8 @@ const checkJwt = jwt({
 
 // Basic route
 app.get('/', (req, res) => {
-    res.send('Va-Hire Backend is running');
-  });
+  res.send('Va-Hire Backend is running');
+});
 
 // Routes
 const authRoutes = require('./routes/auth');
@@ -180,12 +121,6 @@ mongoose.connect(process.env.MONGO_URI, {
     useUnifiedTopology: true,
 }).then(() => console.log('MongoDB connected'))
 .catch((err) => console.log(err));
-
-// Test
-// app.use((req, res, next) => {
-//     res.status(200).json((message) => {message: 'Server connected'});
-//     next();
-// });
 
 app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
