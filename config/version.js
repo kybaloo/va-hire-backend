@@ -1,18 +1,18 @@
 /**
  * Configuration centralisée de la version de l'API
  * Pour mettre à jour la version, modifier uniquement ce fichier
- * Dernière mise à jour: 2025-06-30T15:06:16.869Z
+ * Dernière mise à jour: 2025-06-30T15:26:07.685Z
  */
 
 const VERSION = {
-  number: '1.0.3',
+  number: '1.0.4',
   get formatted() {
     return `v${this.number}`;
   },
   notes: [
-    'Setup complete versioning system'
+    'Patch release'
   ],
-  description: 'API documentation for VaHire backend. Version 1.0.3 includes: Setup complete versioning system.'
+  description: 'API documentation for VaHire backend. Version 1.0.4 includes: Patch release.'
 };
 
 module.exports = VERSION;
