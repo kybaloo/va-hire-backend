@@ -1,13 +1,24 @@
 {
   "name": "va-hire-backend",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Backend for VaHire platform",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js",
     "test": "jest",
-    "update-version": "node scripts/update-version.js"
+    "update-version": "node scripts/update-version.js",
+    "version:patch": "node scripts/update-version.js auto --type=patch",
+    "version:minor": "node scripts/update-version.js auto --type=minor",
+    "version:major": "node scripts/update-version.js auto --type=major",
+    "release:patch": "node scripts/create-github-release.js patch",
+    "release:minor": "node scripts/create-github-release.js minor",
+    "release:major": "node scripts/create-github-release.js major",
+    "release:custom": "node scripts/create-github-release.js",
+    "tag:create": "git tag -a v$(node -p \"require('./package.json').version\") -m \"Release v$(node -p \"require('./package.json').version\")\"",
+    "tag:push": "git push origin v$(node -p \"require('./package.json').version\")",
+    "git:status": "git status",
+    "git:log": "git log --oneline -10"
   },
   "keywords": [],
   "author": "",
@@ -37,5 +48,8 @@
     "stripe": "^18.0.0",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.0"
+  },
+  "devDependencies": {
+    "axios": "^1.10.0"
   }
 }
