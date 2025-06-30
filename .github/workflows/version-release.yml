@@ -1,0 +1,76 @@
+name: Version and Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version_type:
+        description: "Type de version (patch, minor, major)"
+        required: true
+        default: "patch"
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+      release_notes:
+        description: "Notes de version (optionnel)"
+        required: false
+        type: string
+
+jobs:
+  version-and-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Configure Git
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Run tests
+        run: npm test --if-present
+
+      - name: Update version with notes
+        run: |
+          # Si des notes sont fournies, les ajouter au script
+          if [ -n "${{ github.event.inputs.release_notes }}" ]; then
+            node scripts/update-version.js auto "${{ github.event.inputs.release_notes }}" --type=${{ github.event.inputs.version_type }}
+          else
+            # Utiliser npm version standard
+            npm version ${{ github.event.inputs.version_type }} --no-git-tag-version
+          fi
+
+      - name: Get new version
+        id: get_version
+        run: |
+          NEW_VERSION=$(node -p "require('./package.json').version")
+          echo "VERSION=v$NEW_VERSION" >> $GITHUB_OUTPUT
+          echo "PACKAGE_VERSION=$NEW_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Commit and push changes
+        run: |
+          git add .
+          git commit -m "chore: bump version to ${{ steps.get_version.outputs.PACKAGE_VERSION }}"
+          git push
+
+      - name: Create and push tag
+        run: |
+          git tag -a ${{ steps.get_version.outputs.VERSION }} -m "Release ${{ steps.get_version.outputs.VERSION }}"
+          git push origin ${{ steps.get_version.outputs.VERSION }}
