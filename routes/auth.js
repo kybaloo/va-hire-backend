@@ -6,8 +6,8 @@ const {
   completeProfile,
   handleAuth0Login,
 } = require("../controllers/authController");
-const { checkJwt, handleJwtError } = require("../middleware/auth"); // For Auth0 authentication
-const { debugAuth0, logAuth0Success } = require("../middleware/debugAuth0");
+const { withUser, checkJwt, handleJwtError } = require("../middlewares/auth");
+const { debugAuth0, logAuth0Success } = require("../middlewares/debugAuth0");
 const User = require("../models/User");
 const router = express.Router();
 
@@ -284,13 +284,7 @@ router.get(
  *       400:
  *         description: Invalid profile data
  */
-router.post(
-  "/complete-profile",
-  debugAuth0,
-  checkJwt,
-  logAuth0Success,
-  completeProfile
-);
+router.post("/complete-profile", withUser, completeProfile);
 
 /**
  * @swagger
@@ -333,10 +327,9 @@ router.post(
  *       404:
  *         description: User not found
  */
-router.get("/profile", checkJwt, async (req, res) => {
+router.get("/profile", withUser, async (req, res) => {
   try {
-    const userId = req.auth.sub;
-    const user = await User.findOne({ auth0Id: userId }).select("-password");
+    const user = req.dbUser;
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });
