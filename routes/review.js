@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { checkJwt } = require('../middleware/auth');
+const { auth } = require('../middlewares/auth');
 const reviewController = require('../controllers/reviewController');
 const { body } = require('express-validator');
 
@@ -54,7 +54,7 @@ const { body } = require('express-validator');
  *       401:
  *         description: Unauthorized
  */
-router.get('/', checkJwt, reviewController.getReviews);
+router.get('/', auth, reviewController.getReviews);
 
 /**
  * @swagger
@@ -97,7 +97,7 @@ router.get('/', checkJwt, reviewController.getReviews);
  *       404:
  *         description: Project not found
  */
-router.post('/', checkJwt, [
+router.post('/', auth, [
   body('projectId').isString().trim().notEmpty(),
   body('rating').isInt({ min: 1, max: 5 }),
   body('comment').isString().trim().notEmpty()
@@ -130,7 +130,7 @@ router.post('/', checkJwt, [
  *       401:
  *         description: Unauthorized
  */
-router.get('/:reviewId', checkJwt, reviewController.getReview);
+router.get('/:reviewId', auth, reviewController.getReview);
 
 /**
  * @swagger
@@ -174,7 +174,7 @@ router.get('/:reviewId', checkJwt, reviewController.getReview);
  *       403:
  *         description: Forbidden - Can only update own review
  */
-router.put('/:reviewId', checkJwt, [
+router.put('/:reviewId', auth, [
   body('rating').optional().isInt({ min: 1, max: 5 }),
   body('comment').optional().isString().trim().notEmpty()
 ], reviewController.updateReview);
@@ -204,6 +204,6 @@ router.put('/:reviewId', checkJwt, [
  *       403:
  *         description: Forbidden - Can only delete own review
  */
-router.delete('/:reviewId', checkJwt, reviewController.deleteReview);
+router.delete('/:reviewId', auth, reviewController.deleteReview);
 
 module.exports = router; 
