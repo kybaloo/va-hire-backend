@@ -2,21 +2,7 @@ const express = require('express');
 const router = express.Router();
 const uploadController = require('../controllers/uploadController');
 const { uploadImage, uploadResume, uploadProjectFile } = require('../config/cloudinary');
-const { expressjwt: jwt } = require('express-jwt');
-const jwksRsa = require('jwks-rsa');
-
-// Auth middleware
-const checkJwt = jwt({
-  secret: jwksRsa.expressJwtSecret({
-    cache: true,
-    rateLimit: true,
-    jwksRequestsPerMinute: 5,
-    jwksUri: `https://${process.env.AUTH0_DOMAIN}/.well-known/jwks.json`
-  }),
-  audience: process.env.AUTH0_AUDIENCE,
-  issuer: `https://${process.env.AUTH0_DOMAIN}/`,
-  algorithms: ['RS256']
-});
+const { auth } = require('../middlewares/auth');
 
 /**
  * @swagger
@@ -53,7 +39,7 @@ const checkJwt = jwt({
  *       401:
  *         description: Unauthorized
  */
-router.post('/profile-image', checkJwt, uploadImage.single('image'), uploadController.uploadProfileImage);
+router.post('/profile-image', auth, uploadImage.single('image'), uploadController.uploadProfileImage);
 
 /**
  * @swagger
@@ -90,7 +76,7 @@ router.post('/profile-image', checkJwt, uploadImage.single('image'), uploadContr
  *       401:
  *         description: Unauthorized
  */
-router.post('/resume', checkJwt, uploadResume.single('resume'), uploadController.uploadResume);
+router.post('/resume', auth, uploadResume.single('resume'), uploadController.uploadResume);
 
 /**
  * @swagger
@@ -136,7 +122,7 @@ router.post('/resume', checkJwt, uploadResume.single('resume'), uploadController
  *       404:
  *         description: Project not found
  */
-router.post('/project/:projectId', checkJwt, uploadProjectFile.single('file'), uploadController.uploadProjectFile);
+router.post('/project/:projectId', auth, uploadProjectFile.single('file'), uploadController.uploadProjectFile);
 
 /**
  * @swagger
@@ -168,6 +154,6 @@ router.post('/project/:projectId', checkJwt, uploadProjectFile.single('file'), u
  *       404:
  *         description: File not found
  */
-router.delete('/delete', checkJwt, uploadController.deleteFile);
+router.delete('/delete', auth, uploadController.deleteFile);
 
-module.exports = router; 
+module.exports = router;
