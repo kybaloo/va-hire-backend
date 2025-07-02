@@ -1,9 +1,9 @@
 const express = require('express');
 const { createRecommendation, getRecommendations } = require('../controllers/recommendationController');
-const authMiddleware = require('../middlewares/authMiddleware');
+const { auth } = require('../middlewares/auth');
 const router = express.Router();
 
-router.post('/', authMiddleware, createRecommendation);
-router.get('/', authMiddleware, getRecommendations);
+router.post('/', auth, createRecommendation);
+router.get('/', auth, getRecommendations);
 
 module.exports = router;
