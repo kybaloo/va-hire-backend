@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { checkJwt } = require('../middleware/auth');
+const { auth } = require('../middlewares/auth');
 const conversationController = require('../controllers/conversationController');
 const { body } = require('express-validator');
 
@@ -44,7 +44,7 @@ const { body } = require('express-validator');
  *       401:
  *         description: Unauthorized
  */
-router.get('/', checkJwt, conversationController.getConversations);
+router.get('/', conversationController.getConversations);
 
 /**
  * @swagger
@@ -80,7 +80,7 @@ router.get('/', checkJwt, conversationController.getConversations);
  *       404:
  *         description: Participant not found
  */
-router.post('/', checkJwt, [
+router.post('/', [
   body('participantId').isString().trim().notEmpty()
 ], conversationController.createConversation);
 
@@ -134,7 +134,7 @@ router.post('/', checkJwt, [
  *       401:
  *         description: Unauthorized
  */
-router.get('/:conversationId', checkJwt, conversationController.getConversation);
+router.get('/:conversationId', conversationController.getConversation);
 
 /**
  * @swagger
@@ -177,7 +177,7 @@ router.get('/:conversationId', checkJwt, conversationController.getConversation)
  *       404:
  *         description: Conversation not found
  */
-router.post('/:conversationId/messages', checkJwt, [
+router.post('/:conversationId/messages', [
   body('content').isString().trim().notEmpty()
 ], conversationController.sendMessage);
 
@@ -204,6 +204,6 @@ router.post('/:conversationId/messages', checkJwt, [
  *       401:
  *         description: Unauthorized
  */
-router.delete('/:conversationId', checkJwt, conversationController.deleteConversation);
+router.delete('/:conversationId', conversationController.deleteConversation);
 
 module.exports = router; 
