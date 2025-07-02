@@ -98,11 +98,6 @@ npm run update-version 1.0.3 "Fixed a bug in authentication" "Improved validatio
 
 Modify the `config/version.js` file directly.
 
-### Current Version
-The current version is **v1.0.2**, which includes:
-- Added `passwordConfirm` field to the registration endpoint documentation
-- Fixed missing `Message` schema definition
-
 ## 🔐 Authentication
 
 The API uses **Auth0** for authentication. JWT tokens must be sent in the header:
