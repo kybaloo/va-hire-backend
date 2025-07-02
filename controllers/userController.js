@@ -1,56 +1,63 @@
-const User = require('../models/User');
+const User = require("../models/User");
 
 exports.getAllUsers = (req, res, next) => {
-    User.find().then(
-        (users) => {
-            res.status(200).json(users);
-        }
-    ).catch(
-        (error) => {
-            res.status(400).json({
-                error: error
-            });
-        }
-    );
-}
+  User.find()
+    .then((users) => {
+      res.status(200).json(users);
+    })
+    .catch((error) => {
+      res.status(400).json({
+        error: error,
+      });
+    });
+};
 
 exports.getUserProfile = async (req, res) => {
-    try {
-      // Use Auth0's subject identifier instead of userId
-      const userId = req.auth.sub;
-      const user = await User.findOne({ auth0Id: userId }).select('-password');
-      
-      if (!user) {
-        return res.status(404).json({ message: 'User not found' });
-      }
-      
-      res.status(200).json(user);
-    } catch (err) {
-      res.status(500).json({ error: err.message });
+  try {
+    // Use the user data provided by getUserData middleware
+    const user = req.dbUser;
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
     }
-  };
+
+    // Remove password from response
+    const userResponse = user.toObject();
+    delete userResponse.password;
+
+    res.status(200).json(userResponse);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
 
 exports.updateUserProfile = async (req, res) => {
-    try {
-      // Use Auth0's subject identifier instead of userId
-      const userId = req.auth.sub;
-      const { skills, experience, portfolio } = req.body;
-      
-      const user = await User.findOneAndUpdate(
-        { auth0Id: userId },
-        { 'profile.skills': skills, 'profile.experience': experience, 'profile.portfolio': portfolio },
-        { new: true }
-      ).select('-password');
-      
-      if (!user) {
-        return res.status(404).json({ message: 'User not found' });
-      }
-      
-      res.status(200).json(user);
-    } catch (err) {
-      res.status(500).json({ error: err.message });
+  try {
+    // Use the user data provided by getUserData middleware
+    const user = req.dbUser;
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
     }
-  };
+
+    const { skills, experience, portfolio } = req.body;
+
+    // Update user profile
+    if (skills !== undefined) user.profile.skills = skills;
+    if (experience !== undefined) user.profile.experience = experience;
+    if (portfolio !== undefined) user.profile.portfolio = portfolio;
+
+    await user.save();
+
+    // Remove password from response
+    const userResponse = user.toObject();
+    delete userResponse.password;
+
+    res.status(200).json(userResponse);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
 
 // Create a new user
 exports.createUser = async (req, res) => {
@@ -68,12 +75,12 @@ exports.createUser = async (req, res) => {
 exports.getUser = async (req, res) => {
   try {
     const userId = req.params.userId;
-    const user = await User.findById(userId).select('-password');
-    
+    const user = await User.findById(userId).select("-password");
+
     if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(404).json({ message: "User not found" });
     }
-    
+
     res.status(200).json(user);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -86,28 +93,30 @@ exports.updateUser = async (req, res) => {
     const userId = req.params.userId;
     // Make sure users can only update their own profile unless they're an admin
     const authUserId = req.auth.sub;
-    
+
     // Find the current user to check their role
     const currentUser = await User.findOne({ auth0Id: authUserId });
     if (!currentUser) {
-      return res.status(404).json({ message: 'Current user not found' });
+      return res.status(404).json({ message: "Current user not found" });
     }
-    
+
     // Only allow users to update their own profile or admins to update any profile
-    if (authUserId !== userId && currentUser.role !== 'admin') {
-      return res.status(403).json({ message: 'You can only update your own profile' });
+    if (authUserId !== userId && currentUser.role !== "admin") {
+      return res
+        .status(403)
+        .json({ message: "You can only update your own profile" });
     }
-    
+
     const updates = req.body;
-    const user = await User.findByIdAndUpdate(userId, updates, { 
+    const user = await User.findByIdAndUpdate(userId, updates, {
       new: true,
-      runValidators: true
-    }).select('-password');
-    
+      runValidators: true,
+    }).select("-password");
+
     if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(404).json({ message: "User not found" });
     }
-    
+
     res.status(200).json(user);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -120,25 +129,27 @@ exports.deleteUser = async (req, res) => {
     const userId = req.params.userId;
     // Make sure users can only delete their own account unless they're an admin
     const authUserId = req.auth.sub;
-    
+
     // Find the current user to check their role
     const currentUser = await User.findOne({ auth0Id: authUserId });
     if (!currentUser) {
-      return res.status(404).json({ message: 'Current user not found' });
+      return res.status(404).json({ message: "Current user not found" });
     }
-    
+
     // Only allow users to delete their own account or admins to delete any account
-    if (authUserId !== userId && currentUser.role !== 'admin') {
-      return res.status(403).json({ message: 'You can only delete your own account' });
+    if (authUserId !== userId && currentUser.role !== "admin") {
+      return res
+        .status(403)
+        .json({ message: "You can only delete your own account" });
     }
-    
+
     const user = await User.findByIdAndDelete(userId);
-    
+
     if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(404).json({ message: "User not found" });
     }
-    
-    res.status(200).json({ message: 'User deleted successfully' });
+
+    res.status(200).json({ message: "User deleted successfully" });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
