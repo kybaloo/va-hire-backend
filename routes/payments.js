@@ -1,21 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const paymentController = require('../controllers/paymentController');
-const { expressjwt: jwt } = require('express-jwt');
-const jwksRsa = require('jwks-rsa');
-
-// Auth middleware
-const checkJwt = jwt({
-  secret: jwksRsa.expressJwtSecret({
-    cache: true,
-    rateLimit: true,
-    jwksRequestsPerMinute: 5,
-    jwksUri: `https://${process.env.AUTH0_DOMAIN}/.well-known/jwks.json`
-  }),
-  audience: process.env.AUTH0_AUDIENCE,
-  issuer: `https://${process.env.AUTH0_DOMAIN}/`,
-  algorithms: ['RS256']
-});
+const { auth } = require('../middlewares/auth');
 
 /**
  * @swagger
@@ -58,7 +44,7 @@ const checkJwt = jwt({
  *       500:
  *         description: Server error
  */
-router.post('/checkout', checkJwt, paymentController.createCheckoutSession);
+router.post('/checkout', auth, paymentController.createCheckoutSession);
 
 /**
  * @swagger
@@ -92,7 +78,7 @@ router.post('/checkout', checkJwt, paymentController.createCheckoutSession);
  *       500:
  *         description: Server error
  */
-router.get('/status/:sessionId', checkJwt, paymentController.getPaymentStatus);
+router.get('/status/:sessionId', auth, paymentController.getPaymentStatus);
 
 /**
  * @swagger
