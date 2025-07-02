@@ -11,6 +11,39 @@ et ce projet adhère au [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 - Nouvelles fonctionnalités en développement
 
+## [1.1.0] - 2025-07-02
+
+### 🔄 **BREAKING CHANGES**
+
+- **Authentification**: Consolidation complète du système d'authentification
+- **Architecture**: Suppression du dossier `middleware/` au profit de `middlewares/`
+
+### ✨ **Nouvelles fonctionnalités**
+
+- **Authentification hybride**: Support unifié Auth0 + JWT traditionnel
+- **Middleware unifié**: Nouveau middleware `authenticate` qui gère les deux types d'auth
+- **API simplifiée**: Nouveaux alias `auth`, `withUser`, `adminOnly` pour faciliter l'usage
+
+### 🛠️ **Améliorations**
+
+- **Performance**: Élimination de la duplication de code d'authentification
+- **Maintenabilité**: Code d'auth centralisé dans `middlewares/auth.js`
+- **Documentation**: Middlewares clairement documentés avec exemples d'usage
+- **Compatibilité**: Support rétrocompatible des anciennes méthodes d'auth
+
+### 🧹 **Nettoyage**
+
+- **Suppression**: Anciens middlewares redondants (`authMiddleware.js`, `hybridAuth.js`)
+- **Suppression**: Dossier `middleware/` obsolète
+- **Refactoring**: Toutes les routes mises à jour avec la nouvelle architecture
+
+### 📋 **Détails techniques**
+
+- Routes admin utilisent maintenant `authenticateAdmin`
+- Routes users/conversations utilisent `authenticate` au niveau application
+- Support des tokens Auth0 (RS256) et JWT traditionnels (HS256)
+- Gestion d'erreurs unifiée et améliorée
+
 ## [1.0.3] - 2025-06-30
 
 ### ✅ Corrections
