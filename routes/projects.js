@@ -1,9 +1,8 @@
 const express = require('express');
 const { createProject, getProjects } = require('../controllers/projectController');
-const authMiddleware = require('../middlewares/authMiddleware');
+const { auth } = require('../middlewares/auth');
 const router = express.Router();
 const projectController = require('../controllers/projectController');
-const { checkJwt } = require('../middleware/auth');
 const { body } = require('express-validator');
 
 /**
@@ -62,7 +61,7 @@ const { body } = require('express-validator');
  *       401:
  *         description: Unauthorized
  */
-router.get('/', checkJwt, projectController.getProjects);
+router.get('/', auth, projectController.getProjects);
 
 /**
  * @swagger
@@ -111,7 +110,7 @@ router.get('/', checkJwt, projectController.getProjects);
  *       401:
  *         description: Unauthorized
  */
-router.post('/', checkJwt, [
+router.post('/', auth, [
   body('title').isString().trim().notEmpty(),
   body('description').isString().trim().notEmpty(),
   body('budget').isNumeric().isFloat({ min: 0 }),
@@ -147,7 +146,7 @@ router.post('/', checkJwt, [
  *       401:
  *         description: Unauthorized
  */
-router.get('/:projectId', checkJwt, projectController.getOneProject);
+router.get('/:projectId', auth, projectController.getOneProject);
 
 /**
  * @swagger
@@ -203,7 +202,7 @@ router.get('/:projectId', checkJwt, projectController.getOneProject);
  *       403:
  *         description: Forbidden - Can only update own project
  */
-router.put('/:projectId', checkJwt, [
+router.put('/:projectId', auth, [
   body('title').optional().isString().trim().notEmpty(),
   body('description').optional().isString().trim().notEmpty(),
   body('budget').optional().isNumeric().isFloat({ min: 0 }),
@@ -238,6 +237,6 @@ router.put('/:projectId', checkJwt, [
  *       403:
  *         description: Forbidden - Can only delete own project
  */
-router.delete('/:projectId', checkJwt, projectController.deleteProject);
+router.delete('/:projectId', auth, projectController.deleteProject);
 
 module.exports = router;
