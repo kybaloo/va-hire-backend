@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const notificationController = require('../controllers/notificationController');
-const { checkJwt } = require('../middleware/auth');
+const { auth } = require('../middlewares/auth');
 
 /**
  * @swagger
@@ -48,7 +48,7 @@ const { checkJwt } = require('../middleware/auth');
  *       401:
  *         description: Unauthorized
  */
-router.get('/', checkJwt, notificationController.getNotifications);
+router.get('/', auth, notificationController.getNotifications);
 
 /**
  * @swagger
@@ -77,7 +77,7 @@ router.get('/', checkJwt, notificationController.getNotifications);
  *       401:
  *         description: Unauthorized
  */
-router.get('/:notificationId', checkJwt, notificationController.getNotification);
+router.get('/:notificationId', auth, notificationController.getNotification);
 
 /**
  * @swagger
@@ -106,7 +106,7 @@ router.get('/:notificationId', checkJwt, notificationController.getNotification)
  *       401:
  *         description: Unauthorized
  */
-router.put('/:notificationId/read', checkJwt, notificationController.markAsRead);
+router.put('/:notificationId/read', auth, notificationController.markAsRead);
 
 /**
  * @swagger
@@ -122,7 +122,7 @@ router.put('/:notificationId/read', checkJwt, notificationController.markAsRead)
  *       401:
  *         description: Unauthorized
  */
-router.put('/read-all', checkJwt, notificationController.markAllAsRead);
+router.put('/read-all', auth, notificationController.markAllAsRead);
 
 /**
  * @swagger
@@ -147,6 +147,6 @@ router.put('/read-all', checkJwt, notificationController.markAllAsRead);
  *       401:
  *         description: Unauthorized
  */
-router.delete('/:notificationId', checkJwt, notificationController.deleteNotification);
+router.delete('/:notificationId', auth, notificationController.deleteNotification);
 
 module.exports = router; 
