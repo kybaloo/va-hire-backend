@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { checkJwt } = require('../middleware/auth');
+const { auth } = require('../middlewares/auth');
 const courseController = require('../controllers/courseController');
 const { body } = require('express-validator');
 
@@ -54,7 +54,7 @@ const { body } = require('express-validator');
  *       401:
  *         description: Unauthorized
  */
-router.get('/', checkJwt, courseController.getCourses);
+router.get('/', auth, courseController.getCourses);
 
 /**
  * @swagger
@@ -105,7 +105,7 @@ router.get('/', checkJwt, courseController.getCourses);
  *       401:
  *         description: Unauthorized
  */
-router.post('/', checkJwt, [
+router.post('/', auth, [
   body('title').isString().trim().notEmpty(),
   body('description').isString().trim().notEmpty(),
   body('price').isNumeric().isFloat({ min: 0 }),
@@ -142,7 +142,7 @@ router.post('/', checkJwt, [
  *       401:
  *         description: Unauthorized
  */
-router.get('/:courseId', checkJwt, courseController.getCourse);
+router.get('/:courseId', auth, courseController.getCourse);
 
 /**
  * @swagger
@@ -197,7 +197,7 @@ router.get('/:courseId', checkJwt, courseController.getCourse);
  *       403:
  *         description: Forbidden - Can only update own course
  */
-router.put('/:courseId', checkJwt, [
+router.put('/:courseId', auth, [
   body('title').optional().isString().trim().notEmpty(),
   body('description').optional().isString().trim().notEmpty(),
   body('price').optional().isNumeric().isFloat({ min: 0 }),
@@ -232,7 +232,7 @@ router.put('/:courseId', checkJwt, [
  *       403:
  *         description: Forbidden - Can only delete own course
  */
-router.delete('/:courseId', checkJwt, courseController.deleteCourse);
+router.delete('/:courseId', auth, courseController.deleteCourse);
 
 /**
  * @swagger
@@ -268,7 +268,7 @@ router.delete('/:courseId', checkJwt, courseController.deleteCourse);
  *       401:
  *         description: Unauthorized
  */
-router.post('/:courseId/enroll', checkJwt, courseController.enrollInCourse);
+router.post('/:courseId/enroll', auth, courseController.enrollInCourse);
 
 /**
  * @swagger
@@ -309,7 +309,7 @@ router.post('/:courseId/enroll', checkJwt, courseController.enrollInCourse);
  *       401:
  *         description: Unauthorized
  */
-router.put('/:courseId/progress', checkJwt, courseController.updateProgress);
+router.put('/:courseId/progress', auth, courseController.updateProgress);
 
 /**
  * @swagger
@@ -353,7 +353,7 @@ router.put('/:courseId/progress', checkJwt, courseController.updateProgress);
  *       401:
  *         description: Unauthorized
  */
-router.post('/:courseId/review', checkJwt, [
+router.post('/:courseId/review', auth, [
   body('rating').isInt({ min: 1, max: 5 }).withMessage('Rating must be between 1 and 5'),
   body('comment').optional().isString().trim().notEmpty().withMessage('Comment must not be empty')
 ], courseController.addReview);
