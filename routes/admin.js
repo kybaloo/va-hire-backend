@@ -1,24 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const { checkJwt } = require('../middleware/auth');
+const { authenticateAdmin } = require('../middlewares/auth');
 const adminController = require('../controllers/adminController');
 const { body } = require('express-validator');
-
-// Middleware to check if user is admin
-const isAdmin = async (req, res, next) => {
-  try {
-    const User = require('../models/User');
-    const user = await User.findOne({ auth0Id: req.auth.sub });
-    
-    if (!user || user.role !== 'admin') {
-      return res.status(403).json({ message: 'Access denied: Admin privileges required' });
-    }
-    
-    next();
-  } catch (error) {
-    res.status(500).json({ message: 'Error checking admin status', error: error.message });
-  }
-};
 
 /**
  * @swagger
@@ -74,7 +58,7 @@ const isAdmin = async (req, res, next) => {
  *       403:
  *         description: Forbidden - Admin access required
  */
-router.get('/users', checkJwt, isAdmin, adminController.getUsers);
+router.get('/users', authenticateAdmin, adminController.getUsers);
 
 /**
  * @swagger
@@ -103,13 +87,12 @@ router.get('/users', checkJwt, isAdmin, adminController.getUsers);
  *               status:
  *                 type: string
  *                 enum: [active, suspended, deleted]
+ *                 description: New user status
  *     responses:
  *       200:
  *         description: User status updated successfully
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/User'
+ *       400:
+ *         description: Invalid status value
  *       404:
  *         description: User not found
  *       401:
@@ -117,7 +100,7 @@ router.get('/users', checkJwt, isAdmin, adminController.getUsers);
  *       403:
  *         description: Forbidden - Admin access required
  */
-router.put('/users/:userId/status', checkJwt, [
+router.put('/users/:userId/status', authenticateAdmin, [
   body('status').isIn(['active', 'suspended', 'deleted'])
 ], adminController.updateUserStatus);
 
@@ -142,57 +125,33 @@ router.put('/users/:userId/status', checkJwt, [
  *           type: integer
  *           default: 10
  *         description: Number of items per page
- *       - in: query
- *         name: status
- *         schema:
- *           type: string
- *           enum: [open, in_progress, completed, cancelled]
- *         description: Filter projects by status
- *       - in: query
- *         name: category
- *         schema:
- *           type: string
- *         description: Filter projects by category
  *     responses:
  *       200:
  *         description: List of projects
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 projects:
- *                   type: array
- *                   items:
- *                     $ref: '#/components/schemas/Project'
- *                 totalPages:
- *                   type: integer
- *                 currentPage:
- *                   type: integer
  *       401:
  *         description: Unauthorized
  *       403:
  *         description: Forbidden - Admin access required
  */
-router.get('/projects', checkJwt, isAdmin, adminController.getProjects);
+router.get('/projects', authenticateAdmin, adminController.getProjects);
 
 /**
  * @swagger
  * /api/admin/reports:
  *   get:
- *     summary: Get system reports
+ *     summary: Get admin reports and statistics
  *     tags: [Admin]
  *     security:
  *       - bearerAuth: []
  *     responses:
  *       200:
- *         description: System reports retrieved successfully
+ *         description: Admin reports and statistics
  *       401:
  *         description: Unauthorized
  *       403:
  *         description: Forbidden - Admin access required
  */
-router.get('/reports', checkJwt, isAdmin, adminController.getReports);
+router.get('/reports', authenticateAdmin, adminController.getReports);
 
 /**
  * @swagger
@@ -228,7 +187,7 @@ router.get('/reports', checkJwt, isAdmin, adminController.getReports);
  *       403:
  *         description: Forbidden - Admin access required
  */
-router.put('/ban-user/:userId', checkJwt, isAdmin, [
+router.put('/ban-user/:userId', authenticateAdmin, [
   body('reason').optional().isString().trim().notEmpty().withMessage('Reason must not be empty')
 ], adminController.banUser);
 
@@ -257,6 +216,6 @@ router.put('/ban-user/:userId', checkJwt, isAdmin, [
  *       403:
  *         description: Forbidden - Admin access required
  */
-router.put('/unban-user/:userId', checkJwt, isAdmin, adminController.unbanUser);
+router.put('/unban-user/:userId', authenticateAdmin, adminController.unbanUser);
 
-module.exports = router; 
+module.exports = router;
