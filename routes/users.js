@@ -1,8 +1,7 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const userController = require('../controllers/userController');
-const { checkJwt } = require('../middleware/auth');
-const { body } = require('express-validator');
+const userController = require("../controllers/userController");
+const { body } = require("express-validator");
 
 /**
  * @swagger
@@ -55,7 +54,7 @@ const { body } = require('express-validator');
  *       401:
  *         description: Unauthorized
  */
-router.get('/', checkJwt, userController.getAllUsers);
+router.get("/", userController.getAllUsers);
 
 /**
  * @swagger
@@ -75,7 +74,7 @@ router.get('/', checkJwt, userController.getAllUsers);
  *       401:
  *         description: Unauthorized
  */
-router.get('/profile', checkJwt, userController.getUserProfile);
+router.get("/profile", userController.getUserProfile);
 
 /**
  * @swagger
@@ -118,7 +117,7 @@ router.get('/profile', checkJwt, userController.getUserProfile);
  *       401:
  *         description: Unauthorized
  */
-router.put('/profile', checkJwt, userController.updateUserProfile);
+router.put("/profile", userController.updateUserProfile);
 
 /**
  * @swagger
@@ -154,7 +153,7 @@ router.put('/profile', checkJwt, userController.updateUserProfile);
  *       400:
  *         description: Invalid input data
  */
-router.post('/', userController.createUser);
+router.post("/", userController.createUser);
 
 /**
  * @swagger
@@ -183,7 +182,7 @@ router.post('/', userController.createUser);
  *       401:
  *         description: Unauthorized
  */
-router.get('/:userId', checkJwt, userController.getUser);
+router.get("/:userId", userController.getUser);
 
 /**
  * @swagger
@@ -241,15 +240,19 @@ router.get('/:userId', checkJwt, userController.getUser);
  *       403:
  *         description: Forbidden - Can only update own profile
  */
-router.put('/:userId', checkJwt, [
-  body('firstname').optional().isString().trim(),
-  body('lastname').optional().isString().trim(),
-  body('email').optional().isEmail(),
-  body('profile.title').optional().isString().trim(),
-  body('profile.skills').optional().isArray(),
-  body('profile.experience').optional().isString(),
-  body('profile.portfolio').optional().isString()
-], userController.updateUser);
+router.put(
+  "/:userId",
+  [
+    body("firstname").optional().isString().trim(),
+    body("lastname").optional().isString().trim(),
+    body("email").optional().isEmail(),
+    body("profile.title").optional().isString().trim(),
+    body("profile.skills").optional().isArray(),
+    body("profile.experience").optional().isString(),
+    body("profile.portfolio").optional().isString(),
+  ],
+  userController.updateUser
+);
 
 /**
  * @swagger
@@ -276,6 +279,6 @@ router.put('/:userId', checkJwt, [
  *       403:
  *         description: Forbidden - Can only delete own account
  */
-router.delete('/:userId', checkJwt, userController.deleteUser);
+router.delete("/:userId", userController.deleteUser);
 
 module.exports = router;
